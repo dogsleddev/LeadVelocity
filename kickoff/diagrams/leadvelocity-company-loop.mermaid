@@ -1,0 +1,70 @@
+flowchart TB
+    subgraph SALES["GET BUSINESS · Sales Agent"]
+        direction LR
+        S1["CSLB C-10 prospect pool, San Francisco"] --> S2["Qualify: license + geo filters, AI commercial check"]
+        S2 --> S3["Run limited sample of the Lead engine on prospect territory"]
+        S3 --> S4["Send sample opportunity + checkout link"]
+    end
+
+    subgraph PAID["GET PAID · Stripe"]
+        direction LR
+        P1["Prospect subscribes: 149/mo Payment Link"] --> P2["Webhook flips account to active"]
+    end
+
+    subgraph FULFILL["DO BUSINESS · Lead Agent"]
+        direction LR
+        F1["SF permit records: live SODA or labeled replay"] --> F2["Filter, shortlist, enrich, score"]
+        F2 --> F3{"Score >= 80?"}
+        F3 -->|"yes"| F4["Deliver opportunity: SMS + evidence detail page"]
+        F3 -->|"no"| F5["Archive: selectivity is the product"]
+    end
+
+    subgraph KEEP["KEEP BUSINESS · Customer Agent"]
+        direction LR
+        K1["Feedback: good, too small, wrong scope"] --> K2["Update effective customer profile"]
+    end
+
+    subgraph GROW["GROW · CEO Agent"]
+        direction LR
+        G1["Segment economics from real run data"] --> G2["Reallocate acquisition toward best segments"]
+    end
+
+    subgraph GOV["GOVERNANCE"]
+        direction LR
+        LOG["Append-only decision log: every agent decision, timestamped and attributed"]
+        KS["Kill switch: every worker checks it at tick start"]
+    end
+
+    T["Terac expert labor via MCP: humans on demand, no employees"]
+
+    S4 --> P1
+    P2 -->|"active account unlocks fulfillment"| F2
+    F4 --> K1
+    K2 -->|"sharper scoring on the next pass"| F2
+    G2 -->|"retargets prospecting"| S1
+
+    P2 -.->|"MRR"| G1
+    F4 -.->|"delivery + cost metrics"| G1
+    K1 -.->|"acceptance + retention"| G1
+
+    F2 -.->|"blocking unknown, high value"| T
+    T -.->|"5 minute answer, evidence upgraded"| F2
+
+    SALES -.-> LOG
+    FULFILL -.-> LOG
+    KEEP -.-> LOG
+    GROW -.-> LOG
+
+    classDef agent fill:#eef2ff,stroke:#4f46e5,stroke-width:2px,color:#1e1b4b
+    classDef money fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef data fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a
+    classDef human fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#7c2d12
+    classDef gate fill:#fefce8,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef gov fill:#f1f5f9,stroke:#334155,stroke-width:1.5px,color:#0f172a
+
+    class S1,S2,S3,S4,F2,F4,F5,K1,K2,G1,G2 agent
+    class P1,P2 money
+    class F1 data
+    class T human
+    class F3 gate
+    class LOG,KS gov

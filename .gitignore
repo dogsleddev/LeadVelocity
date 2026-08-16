@@ -1,0 +1,27 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+.claude/
+
+# Secrets: env only, never committed (CLAUDE.md conventions)
+.env
+.env.local
+.env*.local
+
+# Real extracts are large; permits/contacts are committed deliberately for replay,
+# but keep raw scratch pulls out of the repo.
+data/raw/
+data/*.tmp.json
+
+# Rendered diagram exports are large and regenerable from the .mermaid source.
+kickoff/diagrams/*.png
+kickoff/diagrams/*.jpg
+
+.DS_Store
+*.log
+coverage/

@@ -1,0 +1,23 @@
+{
+  "retrieved_at": "2026-08-15T16:47:00.415Z",
+  "window": {
+    "filed_date_after": "2026-02-15T00:00:00"
+  },
+  "sources": [
+    {
+      "agency": "City and County of San Francisco (DataSF / DBI)",
+      "dataset_id": "i98e-djp9",
+      "name": "Building Permits",
+      "endpoint": "https://data.sfgov.org/resource/i98e-djp9.json",
+      "rows": 10880
+    },
+    {
+      "agency": "City and County of San Francisco (DataSF / DBI)",
+      "dataset_id": "3pee-9qhc",
+      "name": "Building Permits Contacts",
+      "endpoint": "https://data.sfgov.org/resource/3pee-9qhc.json",
+      "rows": 22148,
+      "join_key": "permit_number"
+    }
+  ]
+}

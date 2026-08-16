@@ -1,0 +1,560 @@
+/*
+ * The contractor app surface: the LIGHT half of LeadVelocity.
+ *
+ * WHAT THIS IS
+ * ------------
+ * Every style the subscriber-facing screens under `/app` use. It is imported
+ * exactly once, from `app/app/layout.tsx`, and nowhere else. The owner's
+ * operations console at `/`, `/log` and `/dashboard` keeps `globals.css` and
+ * stays dark; this file must never change how those screens look.
+ *
+ * WHY IT LOOKS LIKE THIS
+ * ----------------------
+ * The palette, the type scale and the spacing are transcribed from the settled
+ * v4 prototype ("prototype review/LeadVelocity v4.dc.html"), which reverted the
+ * v3 dark experiment. Light is a decision that was already made and re-made, so
+ * the numbers below are copied rather than reinvented: page #F4F8FC, card
+ * #FFFFFF, ink #132238, muted #66788A, accent #2878F0, green #24966A, hairlines
+ * #EDF3F9 and #D9E3EC, 14px card radius.
+ *
+ * The audience is a commercial electrician holding a phone on a job site, so the
+ * whole thing is a 390px column: the prototype's frame width, centred on a
+ * desktop and edge to edge on an actual phone.
+ *
+ * TWO THINGS THAT KEEP THE TWO SURFACES APART
+ * -------------------------------------------
+ * 1. EVERY TOKEN IS PREFIXED `--lv-` AND SCOPED TO `.lv-app`. Nothing here
+ *    redefines a `globals.css` token, so even if both stylesheets are resident
+ *    during a client-side navigation neither surface can repaint the other.
+ * 2. THE OPS CHROME IS NOT HERE TO SUPPRESS. It used to be: the root layout
+ *    wrapped every route in the application, so the console's header and footer
+ *    rendered above these screens and this file hid them with `body:has(.lv-app)`.
+ *    The console now lives in its own route group, `app/(owner)/`, and its chrome
+ *    renders only on the routes it owns. A contractor's page no longer ships the
+ *    owner's navigation in its markup at all, which is what the CSS could never
+ *    achieve: hidden links are still links to a screen reader, and they were
+ *    still one unsupported selector away from being visible.
+ *
+ * WHAT IS NO LONGER DIFFERENT
+ * ---------------------------
+ * The palette. The console was dark and this file was the light exception; both
+ * are light now, on the same numbers (see the note at the top of `globals.css`).
+ * The separation above is still real and still worth keeping, because it is about
+ * ownership rather than about colour: these tokens describe a phone screen read
+ * one handed on a job site, and those describe a console on a projector. They
+ * agree today and they are still free to diverge.
+ *
+ * The surface switch at the top of the window is styled entirely in `globals.css`
+ * and is deliberately NOT themed by this file. It is the one element that belongs
+ * to both surfaces, so it must not change appearance when you cross between them.
+ *
+ * THE ACTIVE TAB IS RESOLVED IN CSS, NOT IN JAVASCRIPT
+ * ----------------------------------------------------
+ * The bottom tab bar lives in the layout, which on the server has no way to read
+ * the current pathname. Rather than turn the shell into a client component for
+ * one highlight, each screen states its own identity with a `data-lv-screen`
+ * attribute on its root element and the layout matches it:
+ *
+ *     <section data-lv-screen="leads">   ->  the Leads tab lights up
+ *     <section data-lv-screen="profile"> ->  the Profile tab lights up
+ *
+ * A screen that sets no marker simply gets no highlighted tab, which is the
+ * correct answer for a screen that is not one of the two tabs.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Surface                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * The palette. Defined on the shell element itself so it exists no matter what
+ * the host page did, and inherited by everything inside it.
+ */
+.lv-app {
+  color-scheme: light;
+
+  /* Ground and surfaces */
+  --lv-page: #f4f8fc;
+  --lv-card: #ffffff;
+  --lv-card-soft: #f7fafe;
+
+  /* Ink */
+  --lv-ink: #132238;
+  --lv-ink-2: #3a4c61;
+  --lv-muted: #66788a;
+  --lv-faint: #7d8a97;
+
+  /* Accent, for the qualified tier and anything interactive */
+  --lv-accent: #2878f0;
+  --lv-accent-strong: #16407f;
+  --lv-accent-soft: #e9f1fd;
+  --lv-accent-line: #c4dbfa;
+
+  /* Green, for the high priority tier and for "this reached you" */
+  --lv-green: #24966a;
+  --lv-green-soft: #e9f6ef;
+  --lv-green-line: #bee3cf;
+
+  /* Hairlines */
+  --lv-hair: #edf3f9;
+  --lv-line: #d9e3ec;
+
+  --lv-radius: 14px;
+  --lv-radius-sm: 12px;
+  --lv-radius-frame: 24px;
+
+  --lv-font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 40px;
+  background: var(--lv-page);
+  color: var(--lv-ink);
+  font-family: var(--lv-font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lv-app *,
+.lv-app *::before,
+.lv-app *::after {
+  box-sizing: border-box;
+}
+
+/*
+ * Room for the surface switch.
+ *
+ * `app/components/SurfaceSwitch.tsx` renders a full width strip pinned to the top
+ * of the window, as a SIBLING before this shell rather than a child of it. So the
+ * shell is no longer alone in the viewport and a flat `100vh` would overflow by
+ * exactly the height of that strip, leaving every contractor screen with a
+ * scrollbar and nothing to scroll to.
+ *
+ * The sibling selector is what makes this exact rather than approximate, and it
+ * is why the switch is a sibling: `/sample` renders `.lv-app` with no switch in
+ * front of it, does not match this rule, and correctly keeps the full viewport.
+ *
+ * The ground behind the column needs no rule at all any more. `globals.css` is
+ * light now, so the overscroll gutter is already the right colour and the
+ * `body:has(.lv-app)` override that used to correct it is gone.
+ */
+.surface-switch + .lv-app {
+  min-height: calc(100vh - var(--switch-h));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Frame                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * The phone. 390px is the prototype's frame and it is not arbitrary: it is the
+ * width of the device this product is read on, standing up, outdoors.
+ */
+.lv-frame {
+  width: 390px;
+  max-width: 100%;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  background: var(--lv-card);
+  border: 1px solid var(--lv-line);
+  border-radius: var(--lv-radius-frame);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+/* On a real phone the frame is the screen, so the device costume comes off. */
+@media (max-width: 439px) {
+  .lv-app {
+    padding: 0;
+  }
+
+  .lv-frame {
+    width: 100%;
+    min-height: 100vh;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    /*
+     * Nothing left to clip once the rounded corners are gone, and dropping the
+     * clip lets the tab bar stick to the bottom of the viewport while a long
+     * list scrolls past it. On the desktop frame the clip stays, because there
+     * the rounded corners are the point.
+     */
+    overflow: visible;
+  }
+}
+
+.lv-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* App bar                                                                    */
+/* -------------------------------------------------------------------------- */
+
+.lv-appbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 22px 20px 14px;
+  border-bottom: 1px solid var(--lv-hair);
+}
+
+.lv-wordmark {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--lv-ink);
+}
+
+.lv-wordmark-mark {
+  color: var(--lv-accent);
+}
+
+.lv-tagline {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--lv-faint);
+}
+
+.lv-account {
+  margin-left: auto;
+  max-width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--lv-line);
+  border-radius: 999px;
+  background: var(--lv-card-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lv-muted);
+}
+
+.lv-account--absent {
+  color: var(--lv-faint);
+  font-weight: 500;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Screen furniture                                                           */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * A screen that owns the whole frame below the app bar. Applied by the screen
+ * itself rather than by `.lv-screen > *`, so a screen that wants to scroll
+ * naturally inside a taller shell is not forced into the flex column.
+ */
+.lv-screen-fill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.lv-screen-head {
+  padding: 18px 20px 12px;
+}
+
+.lv-screen-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--lv-ink);
+}
+
+.lv-screen-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--lv-muted);
+  text-wrap: pretty;
+}
+
+.lv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 14px 14px;
+}
+
+/*
+ * Sits at the bottom of the screen, above the tabs, whether the list is long
+ * enough to push it there or not. `margin-top: auto` is inert once the content
+ * fills the frame, so a long inbox simply scrolls it into place.
+ */
+.lv-foot-note {
+  margin-top: auto;
+  padding: 16px 20px 18px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--lv-faint);
+  text-wrap: pretty;
+}
+
+.lv-foot-note strong {
+  color: var(--lv-muted);
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lead card                                                                  */
+/* -------------------------------------------------------------------------- */
+
+.lv-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  text-decoration: none;
+  background: var(--lv-card);
+  border: 1px solid var(--lv-line);
+  border-radius: var(--lv-radius);
+  color: inherit;
+  font-family: inherit;
+}
+
+/*
+ * A delivered lead is lifted off the page the way the prototype lifts an unread
+ * one. It is the only row on this screen that has actually reached the
+ * subscriber, so it is the only row that gets the emphasis.
+ */
+.lv-lead[data-delivered="true"] {
+  border-color: var(--lv-accent-line);
+  box-shadow: 0 4px 14px rgba(40, 120, 240, 0.1);
+}
+
+.lv-lead:hover {
+  border-color: var(--lv-accent-line);
+}
+
+.lv-lead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lv-lead-when {
+  font-size: 11.5px;
+  color: var(--lv-faint);
+  white-space: nowrap;
+}
+
+.lv-lead-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--lv-ink);
+  text-wrap: pretty;
+}
+
+.lv-lead[data-delivered="false"] .lv-lead-title {
+  font-weight: 600;
+}
+
+.lv-lead-subtitle {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--lv-muted);
+}
+
+.lv-lead-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--lv-faint);
+}
+
+.lv-lead-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.lv-lead-state[data-delivered="true"] {
+  color: var(--lv-green);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Score badge                                                                */
+/* -------------------------------------------------------------------------- */
+
+.lv-score {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lv-score[data-tone="green"] {
+  background: var(--lv-green-soft);
+  color: var(--lv-green);
+  border-color: var(--lv-green-line);
+}
+
+.lv-score[data-tone="blue"] {
+  background: var(--lv-accent-soft);
+  color: var(--lv-accent);
+  border-color: var(--lv-accent-line);
+}
+
+.lv-score[data-tone="muted"] {
+  background: var(--lv-hair);
+  color: var(--lv-muted);
+  border-color: var(--lv-line);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty and degraded states                                                  */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * The empty inbox is not a failure and must not look like one. Selectivity is
+ * what the subscriber is paying for, so a quiet day is the product working.
+ */
+.lv-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.lv-empty-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--lv-hair);
+  color: var(--lv-faint);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.lv-empty-body {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--lv-ink-2);
+  text-wrap: pretty;
+}
+
+.lv-empty-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--lv-faint);
+  text-wrap: pretty;
+}
+
+.lv-notice {
+  margin: 14px;
+  padding: 16px;
+  border: 1px solid var(--lv-line);
+  border-radius: var(--lv-radius-sm);
+  background: var(--lv-card-soft);
+}
+
+.lv-notice-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lv-ink);
+}
+
+.lv-notice-body {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--lv-muted);
+  text-wrap: pretty;
+}
+
+.lv-notice-keys {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--lv-faint);
+  word-break: break-word;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Tab bar                                                                    */
+/* -------------------------------------------------------------------------- */
+
+.lv-tabbar {
+  display: flex;
+  margin-top: auto;
+  background: var(--lv-card);
+  border-top: 1px solid var(--lv-hair);
+  position: sticky;
+  bottom: 0;
+}
+
+.lv-tab {
+  flex: 1;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 0 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--lv-faint);
+  text-decoration: none;
+}
+
+.lv-tab svg {
+  display: block;
+}
+
+/* The current screen names itself; the matching tab lights up. */
+.lv-app:has([data-lv-screen="leads"]) .lv-tab[data-lv-tab="leads"],
+.lv-app:has([data-lv-screen="profile"]) .lv-tab[data-lv-tab="profile"] {
+  color: var(--lv-accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Focus                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.lv-app a:focus-visible,
+.lv-app button:focus-visible,
+.lv-app input:focus-visible,
+.lv-app textarea:focus-visible {
+  outline: 2px solid var(--lv-accent-line);
+  outline-offset: 1px;
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  html, body { margin: 0; height: 100%; font-family: Inter, system-ui, sans-serif; }
+  #map { height: 100%; }
+  .lv-pin { display: flex; align-items: center; justify-content: center; border-radius: 999px; font-weight: 800; font-size: 13px; color: #fff; box-shadow: 0 4px 12px rgba(19,34,56,.35); border: 2.5px solid #fff; box-sizing: border-box; }
+  .lv-pin.green { background: #24966A; }
+  .lv-pin.blue { background: #2878F0; }
+  .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: 0 8px 24px rgba(19,34,56,.2); }
+  .leaflet-popup-content { margin: 12px 14px; font-family: Inter, system-ui, sans-serif; }
+  .lv-pop-title { font-size: 13px; font-weight: 700; color: #132238; line-height: 1.35; }
+  .lv-pop-sub { font-size: 11.5px; color: #66788A; margin-top: 2px; }
+  .lv-pop-badge { display: inline-block; margin-top: 7px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .lv-pop-badge.green { background: #E9F6EF; color: #24966A; border: 1px solid #BEE3CF; }
+  .lv-pop-badge.blue { background: #E9F1FD; color: #2878F0; border: 1px solid #C4DBFA; }
+  .lv-legend { position: absolute; top: 14px; left: 14px; z-index: 1000; background: #fff; border: 1px solid #D9E3EC; border-radius: 14px; box-shadow: 0 8px 24px rgba(19,34,56,.12); padding: 10px; width: 250px; display: flex; flex-direction: column; gap: 6px; }
+  .lv-legend-head { font-size: 11px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; padding: 2px 4px; }
+  .lv-site { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 10px; border: none; background: none; cursor: pointer; font-family: inherit; text-align: left; width: 100%; box-sizing: border-box; }
+  .lv-site:hover { background: #F0F6FD; }
+  .lv-site-dot { width: 26px; height: 26px; border-radius: 999px; color: #fff; font-size: 10.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .lv-site-name { font-size: 12px; font-weight: 600; color: #132238; line-height: 1.3; }
+  .lv-site-area { font-size: 11px; color: #7D8A97; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="lv-legend">
+  <div class="lv-legend-head">Delivered sites</div>
+  <div id="sites"></div>
+</div>
+<script type="module">
+  import { db } from './mock-data.js';
+  const map = L.map('map', { zoomControl: true, scrollWheelZoom: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+  const sites = db.inbox.filter(o => o.lat);
+  const markers = {};
+  const bounds = [];
+  for (const o of sites) {
+    const cls = o.score >= 90 ? 'green' : 'blue';
+    const icon = L.divIcon({ className: '', html: `<div class="lv-pin ${cls}" style="width:34px;height:34px;">${o.score}</div>`, iconSize: [34, 34], iconAnchor: [17, 17] });
+    const m = L.marker([o.lat, o.lng], { icon }).addTo(map);
+    m.bindPopup(`<div class="lv-pop-title">${o.title}</div><div class="lv-pop-sub">${o.subtitle}</div><span class="lv-pop-badge ${cls}">${o.badge}</span>`);
+    markers[o.id] = m;
+    bounds.push([o.lat, o.lng]);
+  }
+  map.fitBounds(bounds, { padding: [70, 70] });
+  const list = document.getElementById('sites');
+  for (const o of sites) {
+    const cls = o.score >= 90 ? 'green' : 'blue';
+    const btn = document.createElement('button');
+    btn.className = 'lv-site';
+    btn.innerHTML = `<span class="lv-site-dot" style="background:${cls === 'green' ? '#24966A' : '#2878F0'}">${o.score}</span><span><span class="lv-site-name">${o.title}</span><br><span class="lv-site-area">${o.area}, San Francisco</span></span>`;
+    btn.onclick = () => { map.flyTo([o.lat, o.lng], 15, { duration: .8 }); markers[o.id].openPopup(); };
+    list.appendChild(btn);
+  }
+</script>
+</body>
+</html>

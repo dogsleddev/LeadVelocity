@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F4F8FC; }
+  a { color: #2878F0; text-decoration: none; }
+  a:hover { color: #1E63D0; text-decoration: underline; }
+  @keyframes lvpulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  @keyframes lvgrow { from { transform: scaleX(0); } }
+  @keyframes lvinA { from { opacity: 0; transform: translateY(-6px); } }
+  @keyframes lvinB { from { opacity: 0; transform: translateY(-6px); } }
+  input:focus, textarea:focus, button:focus { outline: 2px solid #C4DBFA; outline-offset: 1px; }
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; min-height: 100vh; background: #F4F8FC; color: #132238;">
+
+  <!-- Demo toggle -->
+  <div style="position: fixed; bottom: 16px; right: 16px; z-index: 90; display: flex; gap: 2px; background: #132238; border-radius: 999px; padding: 4px; box-shadow: 0 8px 24px rgba(15,23,42,.25);">
+    <button onClick="{{ goContractor }}" style="{{ toggleContractorStyle }}">Contractor App</button>
+    <button onClick="{{ goOps }}" style="{{ toggleOpsStyle }}">Operations Console</button>
+  </div>
+
+  <!-- ============ CONTRACTOR APP ============ -->
+  <sc-if value="{{ isContractor }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; align-items: center; padding: 28px 16px 96px;">
+      <div style="display: flex; gap: 12px; margin-bottom: 16px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 2px; background: #E9F1FD; border-radius: 999px; padding: 3px;">
+          <button onClick="{{ devMobile }}" style="{{ devTabM }}">Mobile</button>
+          <button onClick="{{ devDesktop }}" style="{{ devTabD }}">Desktop</button>
+        </div>
+        <sc-if value="{{ isMobileDev }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 6px;" data-screen-label="Contractor screen tabs">
+        <button onClick="{{ goS1 }}" style="{{ tabS1 }}">Sample</button>
+        <button onClick="{{ goS2 }}" style="{{ tabS2 }}">Detail</button>
+        <button onClick="{{ goS3 }}" style="{{ tabS3 }}">Inbox</button>
+        <button onClick="{{ goS4 }}" style="{{ tabS4 }}">Profile</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ isMobileDev }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 390px; max-width: 100%; background: #ffffff; border-radius: 24px; border: 1px solid #D9E3EC; box-shadow: 0 12px 40px rgba(15,23,42,.08); overflow: hidden; min-height: 700px; display: flex; flex-direction: column; position: relative;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 24px 0; font-size: 13px; font-weight: 700; color: #132238;">
+          <span>9:41</span>
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="display: flex; align-items: flex-end; gap: 2px;">
+              <span style="width: 3px; height: 4px; background: #132238; border-radius: 1px; display: inline-block;"></span>
+              <span style="width: 3px; height: 7px; background: #132238; border-radius: 1px; display: inline-block;"></span>
+              <span style="width: 3px; height: 10px; background: #132238; border-radius: 1px; display: inline-block;"></span>
+            </span>
+            <span style="width: 22px; height: 11px; border: 1.5px solid #7D8A97; border-radius: 3px; display: inline-flex; padding: 1.5px; box-sizing: border-box;"><span style="flex: 1; background: #132238; border-radius: 1px;"></span></span>
+          </span>
+        </div>
+
+        <!-- S1 Public sample -->
+        <sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
+          <div data-screen-label="S1 Public sample" style="display: flex; flex-direction: column; flex: 1;">
+            <div style="padding: 24px 20px 8px;">
+              <div style="font-size: 18px; font-weight: 800; letter-spacing: -0.02em;">Lead<span style="color: #2878F0;">Velocity</span></div>
+              <div style="font-size: 11px; font-weight: 600; color: #66788A; letter-spacing: .02em; margin-top: 2px;">From permit to pipeline.</div>
+            </div>
+            <div style="padding: 12px 20px 4px;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; text-wrap: pretty;">A project in your territory worth a look.</h1>
+            </div>
+            <div style="padding: 16px 16px 0;">
+              <div style="border: 1px solid #D9E3EC; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px;">
+                <div><span style="background: #E9F6EF; color: #24966A; border: 1px solid #BEE3CF; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">{{ hero.badge }}</span></div>
+                <div>
+                  <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3;">{{ hero.title }}</div>
+                  <div style="font-size: 13px; color: #66788A; margin-top: 3px;">{{ hero.subtitle }}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <sc-for list="{{ heroRows }}" as="r" hint-placeholder-count="4">
+                    <div style="display: grid; grid-template-columns: 86px 1fr; gap: 10px; font-size: 13px; line-height: 1.45;">
+                      <div style="color: #66788A; font-weight: 600;">{{ r.label }}</div>
+                      <div style="color: #3A4C61;">{{ r.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; padding-top: 2px;">
+                  <sc-for list="{{ heroChips }}" as="c" hint-placeholder-count="4">
+                    <span style="{{ c.style }}">{{ c.label }}</span>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: auto; background: #E9F1FD; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: center;">
+              <div style="font-size: 15px; font-weight: 600; color: #16407F;">Opportunities like this, continuously. $149 per month.</div>
+              <button onClick="{{ subscribe }}" style="background: #2878F0; color: #ffffff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; min-height: 48px;" style-hover="background: #1E63D0;">Start my subscription</button>
+              <div style="font-size: 12px; color: #66788A;">Cancel anytime.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- S2 Opportunity detail -->
+        <sc-if value="{{ isS2 }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="S2 Opportunity detail" style="display: flex; flex-direction: column; flex: 1;">
+            <div style="padding: 16px 16px 0; display: flex; align-items: center; gap: 8px;">
+              <button onClick="{{ goS3 }}" style="background: none; border: none; color: #2878F0; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 6px 4px;">&#8592; Inbox</button>
+            </div>
+            <div style="padding: 8px 20px 0; display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="{{ gaugeOuter }}"><div style="width: 44px; height: 44px; border-radius: 999px; background: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #24966A;">{{ heroScore }}</div></div>
+                <span style="background: #E9F6EF; color: #24966A; border: 1px solid #BEE3CF; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap;">{{ hero.badge }}</span>
+              </div>
+              <div>
+                <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3;">{{ hero.title }}</div>
+                <div style="font-size: 13px; color: #66788A; margin-top: 3px;">{{ hero.subtitle }}</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px;">
+                <sc-for list="{{ heroRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display: grid; grid-template-columns: 86px 1fr; gap: 10px; font-size: 13px; line-height: 1.45;">
+                    <div style="color: #66788A; font-weight: 600;">{{ r.label }}</div>
+                    <div style="color: #3A4C61;">{{ r.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0 2px;">
+                <sc-for list="{{ drivers }}" as="d" hint-placeholder-count="5">
+                  <div style="display: grid; grid-template-columns: 72px 1fr 52px; gap: 8px; align-items: center; font-size: 12px;">
+                    <div style="color: #66788A; font-weight: 600;">{{ d.name }}</div>
+                    <div style="height: 6px; background: #EDF3F9; border-radius: 999px; overflow: hidden;"><div style="{{ d.barStyle }}"></div></div>
+                    <div style="color: #3A4C61; font-weight: 600; text-align: right;">{{ d.scoreText }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding: 14px 20px 0;">
+              <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Evidence</div>
+              <div style="border: 1px solid #D9E3EC; border-radius: 12px; overflow: hidden;">
+                <sc-for list="{{ evidence }}" as="e" hint-placeholder-count="4">
+                  <div style="{{ e.rowStyle }}">
+                    <div style="flex: 1;">
+                      <div style="font-size: 13px; color: #132238; font-weight: 500; line-height: 1.4;">{{ e.fact }}</div>
+                      <div style="font-size: 11.5px; color: #66788A; margin-top: 2px;">{{ e.source }}</div>
+                    </div>
+                    <span style="{{ e.chipStyle }}">{{ e.chip }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding: 14px 20px 0;">
+              <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Best path in</div>
+              <div style="border: 1px solid #D9E3EC; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 999px; background: #E9F1FD; color: #2878F0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">{{ contactInitials }}</div>
+                <div>
+                  <div style="font-size: 14px; font-weight: 700;">{{ contact.name }}</div>
+                  <div style="font-size: 12.5px; color: #66788A;">{{ contact.role }}, {{ contact.company }}</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 14px 20px 20px;">
+              <div style="font-size: 13px; color: #3A4C61; line-height: 1.5;"><span style="font-weight: 700; color: #132238;">Recommended action:</span> {{ hero.action }}</div>
+            </div>
+            <div style="position: sticky; bottom: 0; margin-top: auto; background: #ffffff; border-top: 1px solid #D9E3EC; padding: 12px 16px;">
+              <sc-if value="{{ noFeedback }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; gap: 8px;">
+                  <button onClick="{{ fbGood }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #BEE3CF; background: #E9F6EF; color: #24966A; font-weight: 700; font-size: 13px; font-family: inherit; cursor: pointer;">Good lead</button>
+                  <button onClick="{{ fbSmall }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #D9E3EC; background: #ffffff; color: #66788A; font-weight: 600; font-size: 13px; font-family: inherit; cursor: pointer;">Too small</button>
+                  <button onClick="{{ fbScope }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #D9E3EC; background: #ffffff; color: #66788A; font-weight: 600; font-size: 13px; font-family: inherit; cursor: pointer;">Wrong scope</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ hasFeedback }}" hint-placeholder-val="{{ false }}">
+                <div style="min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #24966A; font-weight: 600; background: #E9F6EF; border-radius: 10px;">Noted: {{ feedback }}. This tunes what we send you.</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- S3 Inbox -->
+        <sc-if value="{{ isS3 }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="S3 Opportunity inbox" style="display: flex; flex-direction: column; flex: 1;">
+            <div style="padding: 24px 20px 14px; border-bottom: 1px solid #EDF3F9;">
+              <div style="font-size: 18px; font-weight: 800; letter-spacing: -0.02em;">Lead<span style="color: #2878F0;">Velocity</span></div>
+              <div style="font-size: 13px; color: #66788A; margin-top: 4px;">{{ companyName }}</div>
+            </div>
+            <sc-if value="{{ inboxHasItems }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 14px;">
+                <sc-for list="{{ inbox }}" as="o" hint-placeholder-count="3">
+                  <button onClick="{{ o.open }}" style="{{ o.cardStyle }}">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                      <span style="{{ o.badgeStyle }}">{{ o.badge }}</span>
+                      <span style="font-size: 11.5px; color: #7D8A97; white-space: nowrap;">{{ o.when }}</span>
+                    </div>
+                    <div style="{{ o.titleStyle }}">{{ o.title }}</div>
+                    <div style="font-size: 12.5px; color: #66788A;">{{ o.subtitle }}</div>
+                    <div style="font-size: 11.5px; color: #7D8A97; font-weight: 500;">{{ o.viewedText }}</div>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ inboxEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 32px; text-align: center; gap: 10px;">
+                <div style="width: 44px; height: 44px; border-radius: 999px; background: #EDF3F9; display: flex; align-items: center; justify-content: center; color: #7D8A97; font-size: 18px;">&#10003;</div>
+                <div style="font-size: 15px; font-weight: 600; color: #3A4C61; line-height: 1.5; text-wrap: pretty;">Nothing cleared the bar today. We deliver quality, not noise.</div>
+              </div>
+            </sc-if>
+            <div style="margin-top: auto; border-top: 1px solid #EDF3F9; display: flex; background: #ffffff;">
+              <button onClick="{{ goS3 }}" style="{{ navInbox }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>Inbox</button>
+              <button onClick="{{ goS4 }}" style="{{ navProfile }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"></path></svg>Profile</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- S4 Profile -->
+        <sc-if value="{{ isS4 }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="S4 Profile" style="display: flex; flex-direction: column; flex: 1;">
+            <div style="padding: 24px 20px 6px;">
+              <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em;">Profile</div>
+              <div style="font-size: 13px; color: #66788A; margin-top: 4px;">{{ companyName }}. Your answers decide what we send you.</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 16px; padding: 16px 20px;">
+              <sc-for list="{{ profile }}" as="f" hint-placeholder-count="4">
+                <label style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #3A4C61;">{{ f.q }}</span>
+                  <input defaultValue="{{ f.a }}" style="border: 1px solid #D9E3EC; border-radius: 10px; padding: 12px; font-size: 14px; font-family: inherit; color: #132238; min-height: 44px; box-sizing: border-box;" />
+                </label>
+              </sc-for>
+            </div>
+            <div style="padding: 0 20px 14px;">
+              <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Learned preferences</div>
+              <div style="border: 1px solid #D9E3EC; border-radius: 12px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{ learnedPrefs }}" as="p" hint-placeholder-count="5">
+                  <span style="{{ p.style }}">{{ p.text }}</span>
+                </sc-for>
+              </div>
+              <div style="font-size: 11.5px; color: #7D8A97; margin-top: 6px;">Tuned from your lead responses.</div>
+            </div>
+            <div style="padding: 4px 20px 24px;">
+              <button style="width: 100%; background: #2878F0; color: #ffffff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; min-height: 48px;" style-hover="background: #1E63D0;">Save changes</button>
+            </div>
+            <div style="margin-top: auto; border-top: 1px solid #EDF3F9; display: flex; background: #ffffff;">
+              <button onClick="{{ goS3 }}" style="{{ navInbox }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>Inbox</button>
+              <button onClick="{{ goS4 }}" style="{{ navProfile }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"></path></svg>Profile</button>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isDesktopDev }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Contractor desktop" style="width: 100%; max-width: 1120px; background: #ffffff; border: 1px solid #D9E3EC; border-radius: 20px; box-shadow: 0 12px 40px rgba(19,34,56,.08); overflow: hidden; min-height: 720px; display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: center; gap: 20px; padding: 0 20px; height: 58px; border-bottom: 1px solid #EDF3F9; flex-shrink: 0;">
+            <div style="font-size: 16px; font-weight: 800; letter-spacing: -0.02em;">Lead<span style="color: #2878F0;">Velocity</span></div>
+            <div style="display: flex; gap: 4px;">
+              <button onClick="{{ goDSample }}" style="{{ dTabSample }}">Sample page</button>
+              <button onClick="{{ goDLeads }}" style="{{ dTabLeads }}">My leads</button>
+              <button onClick="{{ goDMap }}" style="{{ dTabMap }}">Map</button>
+              <button onClick="{{ goDProfile }}" style="{{ dTabProfile }}">Profile</button>
+            </div>
+            <div style="margin-left: auto; font-size: 12.5px; font-weight: 600; color: #66788A; background: #F7FAFE; border: 1px solid #D9E3EC; border-radius: 999px; padding: 6px 12px; white-space: nowrap;">{{ companyName }}</div>
+          </div>
+
+          <sc-if value="{{ dSample }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: 1.15fr .85fr; gap: 28px; padding: 36px 40px; align-items: start;">
+              <div style="display: flex; flex-direction: column; gap: 18px;">
+                <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; text-wrap: pretty;">A project in your territory worth a look.</h1>
+                <div style="border: 1px solid #D9E3EC; border-radius: 16px; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <div><span style="background: #E9F6EF; color: #24966A; border: 1px solid #BEE3CF; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap;">{{ hero.badge }}</span></div>
+                  <div>
+                    <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3;">{{ hero.title }}</div>
+                    <div style="font-size: 13.5px; color: #66788A; margin-top: 3px;">{{ hero.subtitle }}</div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <sc-for list="{{ heroRows }}" as="r" hint-placeholder-count="4">
+                      <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; font-size: 13.5px; line-height: 1.5;">
+                        <div style="color: #7D8A97; font-weight: 600;">{{ r.label }}</div>
+                        <div style="color: #3A4C61;">{{ r.text }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <sc-for list="{{ heroChips }}" as="c" hint-placeholder-count="4">
+                      <span style="{{ c.style }}">{{ c.label }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="background: #E9F1FD; border-radius: 16px; padding: 28px 26px; display: flex; flex-direction: column; gap: 14px; text-align: center; margin-top: 62px;">
+                <div style="font-size: 16px; font-weight: 600; color: #16407F; line-height: 1.45; text-wrap: pretty;">Opportunities like this, continuously. $149 per month.</div>
+                <button onClick="{{ dSubscribe }}" style="background: #2878F0; color: #ffffff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; min-height: 48px;" style-hover="background: #1E63D0;">Start my subscription</button>
+                <div style="font-size: 12px; color: #66788A;">Cancel anytime.</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dLeads }}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; grid-template-columns: 330px 1fr; flex: 1; min-height: 0;">
+              <div style="border-right: 1px solid #EDF3F9; background: #F7FAFE; padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto;">
+                <sc-for list="{{ dInbox }}" as="o" hint-placeholder-count="3">
+                  <button onClick="{{ o.select }}" style="{{ o.cardStyle }}">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                      <span style="{{ o.badgeStyle }}">{{ o.badge }}</span>
+                      <span style="font-size: 11.5px; color: #7D8A97; white-space: nowrap;">{{ o.when }}</span>
+                    </div>
+                    <div style="{{ o.titleStyle }}">{{ o.title }}</div>
+                    <div style="font-size: 12.5px; color: #66788A;">{{ o.subtitle }}</div>
+                    <div style="font-size: 11.5px; color: #7D8A97; font-weight: 500;">{{ o.viewedText }}</div>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="padding: 26px 30px 30px; overflow: auto; display: flex; flex-direction: column; gap: 18px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="{{ dGauge }}"><div style="{{ dGaugeInner }}">{{ dScore }}</div></div>
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <span style="{{ dBadgeStyle }}">{{ dBadge }}</span>
+                      <span style="font-size: 12px; color: #7D8A97; white-space: nowrap;">Delivered {{ dWhen }}</span>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin-top: 6px;">{{ dTitle }}</div>
+                    <div style="font-size: 13.5px; color: #66788A; margin-top: 2px;">{{ dSubtitle }}</div>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;">
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <sc-for list="{{ dRows }}" as="r" hint-placeholder-count="4">
+                      <div style="display: grid; grid-template-columns: 92px 1fr; gap: 10px; font-size: 13px; line-height: 1.5;">
+                        <div style="color: #7D8A97; font-weight: 600;">{{ r.label }}</div>
+                        <div style="color: #3A4C61;">{{ r.text }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 7px; border: 1px solid #EDF3F9; border-radius: 12px; padding: 14px;">
+                    <sc-for list="{{ dDrivers }}" as="d" hint-placeholder-count="5">
+                      <div style="display: grid; grid-template-columns: 72px 1fr 52px; gap: 8px; align-items: center; font-size: 12px;">
+                        <div style="color: #7D8A97; font-weight: 600;">{{ d.name }}</div>
+                        <div style="height: 6px; background: #EDF3F9; border-radius: 999px; overflow: hidden;"><div style="{{ d.barStyle }}"></div></div>
+                        <div style="color: #3A4C61; font-weight: 600; text-align: right;">{{ d.scoreText }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Evidence</div>
+                  <div style="border: 1px solid #D9E3EC; border-radius: 12px; overflow: hidden;">
+                    <sc-for list="{{ dEvidence }}" as="e" hint-placeholder-count="4">
+                      <div style="{{ e.rowStyle }}">
+                        <div style="flex: 1;">
+                          <div style="font-size: 13px; color: #132238; font-weight: 500; line-height: 1.4;">{{ e.fact }}</div>
+                          <div style="font-size: 11.5px; color: #66788A; margin-top: 2px;">{{ e.source }}</div>
+                        </div>
+                        <span style="{{ e.chipStyle }}">{{ e.chip }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;">
+                  <div>
+                    <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Best path in</div>
+                    <div style="border: 1px solid #D9E3EC; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px;">
+                      <div style="width: 40px; height: 40px; border-radius: 999px; background: #E9F1FD; color: #2878F0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">{{ dInitials }}</div>
+                      <div>
+                        <div style="font-size: 14px; font-weight: 700;">{{ dContact.name }}</div>
+                        <div style="font-size: 12.5px; color: #66788A;">{{ dContact.role }}, {{ dContact.company }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Recommended action</div>
+                    <div style="font-size: 13px; color: #3A4C61; line-height: 1.55;">{{ dAction }}</div>
+                  </div>
+                </div>
+                <sc-if value="{{ dNoFb }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; gap: 8px; max-width: 480px;">
+                    <button onClick="{{ dFbGood }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #BEE3CF; background: #E9F6EF; color: #24966A; font-weight: 700; font-size: 13px; font-family: inherit; cursor: pointer; white-space: nowrap;">Good lead</button>
+                    <button onClick="{{ dFbSmall }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #D9E3EC; background: #ffffff; color: #66788A; font-weight: 600; font-size: 13px; font-family: inherit; cursor: pointer; white-space: nowrap;">Too small</button>
+                    <button onClick="{{ dFbScope }}" style="flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid #D9E3EC; background: #ffffff; color: #66788A; font-weight: 600; font-size: 13px; font-family: inherit; cursor: pointer; white-space: nowrap;">Wrong scope</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dHasFb }}" hint-placeholder-val="{{ false }}">
+                  <div style="max-width: 480px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #24966A; font-weight: 600; background: #E9F6EF; border-radius: 10px; padding: 0 16px;">Noted: {{ dFb }}. This tunes what we send you.</div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dMap }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Contractor desktop map" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+              <iframe src="./map.html" title="Delivered site locations" style="flex: 1; width: 100%; border: none; min-height: 660px;"></iframe>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dProfile }}" hint-placeholder-val="{{ false }}">
+            <div style="max-width: 560px; width: 100%; margin: 0 auto; padding: 32px 24px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px;">
+              <div>
+                <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.01em;">Profile</div>
+                <div style="font-size: 13px; color: #66788A; margin-top: 4px;">{{ companyName }}. Your answers decide what we send you.</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <sc-for list="{{ profile }}" as="f" hint-placeholder-count="4">
+                  <label style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #3A4C61;">{{ f.q }}</span>
+                    <input defaultValue="{{ f.a }}" style="border: 1px solid #D9E3EC; border-radius: 10px; padding: 12px; font-size: 14px; font-family: inherit; color: #132238; min-height: 44px; box-sizing: border-box;" />
+                  </label>
+                </sc-for>
+              </div>
+              <div>
+                <div style="font-size: 12px; font-weight: 700; color: #66788A; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Learned preferences</div>
+                <div style="border: 1px solid #D9E3EC; border-radius: 12px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 6px;">
+                  <sc-for list="{{ learnedPrefs }}" as="p" hint-placeholder-count="5">
+                    <span style="{{ p.style }}">{{ p.text }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <button style="width: 100%; background: #2878F0; color: #ffffff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; min-height: 48px;" style-hover="background: #1E63D0;">Save changes</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ OPERATIONS CONSOLE ============ -->
+  <sc-if value="{{ isOps }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Operations Console" style="min-height: 100vh; display: flex; flex-direction: column;">
+      <div style="background: #ffffff; border-bottom: 1px solid #D9E3EC; padding: 0 24px; display: flex; align-items: center; gap: 24px; height: 60px;">
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+          <div style="font-size: 17px; font-weight: 800; letter-spacing: -0.02em; color: #132238;">Lead<span style="color: #2878F0;">Velocity</span></div>
+          <div style="font-size: 11px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .08em;">Operations Console</div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button onClick="{{ goFeed }}" style="{{ tabFeed }}">Live feed</button>
+          <button onClick="{{ goCeo }}" style="{{ tabCeo }}">CEO dashboard</button>
+        </div>
+        <div style="margin-left: auto;">
+          <sc-if value="{{ notPaused }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ askPause }}" style="background: #C94C4C; color: #ffffff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap;" style-hover="background: #B03E3E;">Pause Company</button>
+          </sc-if>
+          <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ resume }}" style="background: #24966A; color: #ffffff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap;" style-hover="background: #1D7A56;">Resume Company</button>
+          </sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #FDEDED; border-bottom: 1px solid #F2C7C7; color: #B03E3E; padding: 12px 24px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+          <span style="width: 8px; height: 8px; border-radius: 999px; background: #C94C4C; display: inline-block;"></span>
+          Company paused. All agents have stopped executing. Deliveries, messaging, and spend are held until you resume.
+        </div>
+      </sc-if>
+
+      <!-- S5 Live feed -->
+      <sc-if value="{{ isFeed }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="S5 Live operating feed" style="max-width: 880px; width: 100%; margin: 0 auto; padding: 28px 24px 80px; box-sizing: border-box;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px;">
+            <h1 style="margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: #132238; white-space: nowrap;">Autonomous Activity</h1>
+            <span style="display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; background: #E2F7F6; color: #0F8E8B; border: 1px solid #BDE9E7; border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 700;">
+              <span style="{{ liveDotStyle }}"></span>
+              Real SF permit records, replayed
+            </span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <sc-for list="{{ feed }}" as="e" hint-placeholder-count="8">
+              <div style="{{ e.rowStyle }}">
+                <div style="font-size: 12px; color: #7D8A97; font-variant-numeric: tabular-nums; padding-top: 3px; width: 62px; flex-shrink: 0;">{{ e.t }}</div>
+                <span style="{{ e.chipStyle }}">{{ e.agent }}</span>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="{{ e.decisionStyle }}">{{ e.decision }}</div>
+                  <div style="font-size: 12.5px; color: #66788A; margin-top: 3px; line-height: 1.45;">{{ e.reason }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- S6 CEO dashboard -->
+      <sc-if value="{{ isCeo }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="S6 CEO dashboard" style="max-width: 1040px; width: 100%; margin: 0 auto; padding: 28px 24px 80px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px;">
+          <h1 style="margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: #132238;">CEO dashboard</h1>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="background: #ffffff; border: 1px solid #D9E3EC; border-radius: 16px; padding: 20px;">
+                <div style="font-size: 12px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .06em;">{{ s.label }}</div>
+                <div style="{{ s.valueStyle }}">{{ s.value }}</div>
+                <div style="font-size: 12.5px; color: #66788A; margin-top: 4px; line-height: 1.4;">{{ s.note }}</div>
+                <sc-if value="{{ s.hasSpark }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: flex-end; gap: 4px; height: 36px; margin-top: 12px;">
+                    <sc-for list="{{ s.spark }}" as="b" hint-placeholder-count="6"><div style="{{ b.style }}"></div></sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ s.hasRatio }}" hint-placeholder-val="{{ false }}">
+                  <div style="height: 8px; background: #D9E3EC; border-radius: 999px; overflow: hidden; margin-top: 14px;"><div style="{{ s.ratioStyle }}"></div></div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Per-account economics, monthly</div>
+            <div style="background: #ffffff; border: 1px solid #D9E3EC; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; gap: 0; flex-wrap: wrap;">
+              <sc-for list="{{ economics }}" as="ec" hint-placeholder-count="7">
+                <div style="{{ ec.cellStyle }}">
+                  <div style="font-size: 11.5px; font-weight: 600; color: #7D8A97;">{{ ec.label }}</div>
+                  <div style="{{ ec.valStyle }}">{{ ec.display }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Segments</div>
+              <div style="background: #ffffff; border: 1px solid #D9E3EC; border-radius: 16px; overflow: hidden;">
+                <div style="display: grid; grid-template-columns: 1.6fr .7fr .8fr .8fr; gap: 8px; padding: 12px 18px; font-size: 11.5px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid #EDF3F9;">
+                  <div>Segment</div><div>Subs</div><div>Acceptance</div><div>Retention</div>
+                </div>
+                <sc-for list="{{ segments }}" as="sg" hint-placeholder-count="2">
+                  <div style="{{ sg.rowStyle }}">
+                    <div style="font-weight: 600; color: #132238;">{{ sg.name }}</div>
+                    <div style="color: #3A4C61;">{{ sg.subs }}</div>
+                    <div style="{{ sg.accStyle }}">{{ sg.acceptance }}</div>
+                    <div style="color: #3A4C61;">{{ sg.retention }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: #7D8A97; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;">Highlighted decision</div>
+              <div style="background: #E9F1FD; border: 1px solid #C4DBFA; border-radius: 16px; padding: 18px 20px;">
+                <div style="font-size: 14px; font-weight: 600; color: #16407F; line-height: 1.5; text-wrap: pretty;">{{ decision.title }}</div>
+                <div style="font-size: 12px; color: #7D8A97; margin-top: 10px;">{{ decision.by }} · {{ decision.when }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Pause confirm dialog -->
+      <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position: fixed; inset: 0; background: rgba(15,23,42,.45); display: flex; align-items: center; justify-content: center; z-index: 100;">
+          <div style="background: #ffffff; border: 1px solid #D9E3EC; border-radius: 16px; padding: 26px; width: 380px; max-width: 90vw; box-shadow: 0 24px 64px rgba(19,34,56,.3);">
+            <div style="font-size: 17px; font-weight: 700; color: #132238;">Pause the company?</div>
+            <div style="font-size: 13.5px; color: #66788A; line-height: 1.55; margin-top: 8px;">All agents stop executing decisions immediately. Deliveries, messaging, and spend are held until you resume.</div>
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+              <button onClick="{{ cancelPause }}" style="background: transparent; border: 1px solid #D9E3EC; color: #66788A; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;">Cancel</button>
+              <button onClick="{{ confirmPause }}" style="background: #C94C4C; color: #ffffff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap;" style-hover="background: #B03E3E;">Pause Company</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: 900},
+  &quot;initialWorkspace&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;contractor&quot;, &quot;options&quot;: [&quot;contractor&quot;, &quot;ops&quot;], &quot;tsType&quot;: &quot;\&quot;contractor\&quot; | \&quot;ops\&quot;&quot;, &quot;section&quot;: &quot;Demo&quot;},
+  &quot;initialDevice&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;mobile&quot;, &quot;options&quot;: [&quot;mobile&quot;, &quot;desktop&quot;], &quot;tsType&quot;: &quot;\&quot;mobile\&quot; | \&quot;desktop\&quot;&quot;, &quot;section&quot;: &quot;Demo&quot;},
+  &quot;showEmptyInbox&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo&quot;}
+}">
+class Component extends DCLogic {
+  state = { db: null, workspace: null, cScreen: "s1", oScreen: "feed", paused: false, confirmOpen: false, feedback: null, viewed: {}, feedCount: 3, device: null, dScreen: "leads", selId: "opp-96", fbBy: {} };
+  componentDidMount() {
+    import(new URL("./mock-data.js", document.baseURI).href).then(m => this.setState({ db: m.db }));
+    this.timer = setInterval(() => {
+      const { db, paused, feedCount } = this.state;
+      if (!paused && db && feedCount < db.feed.length) this.setState({ feedCount: feedCount + 1 });
+    }, 1800);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  chipStyle(label) {
+    const base = { fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", whiteSpace: "nowrap", flexShrink: 0 };
+    const map = {
+      Verified: { background: "#E9F6EF", color: "#24966A", border: "1px solid #BEE3CF" },
+      Corroborated: { background: "#E9F1FD", color: "#2878F0", border: "1px solid #C4DBFA" },
+      Inferred: { background: "#FBF4E3", color: "#A9741D", border: "1px solid #E8D3A4" },
+      Unknown: { background: "transparent", color: "#66788A", border: "1px solid #C7D4E0" }
+    };
+    return Object.assign(base, map[label] || map.Unknown);
+  }
+  agentStyle(agent) {
+    const base = { fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", whiteSpace: "nowrap", flexShrink: 0, marginTop: "1px" };
+    const map = {
+      "Sales Agent": { background: "#E4EFFF", color: "#2F6FD0" },
+      "Lead Agent": { background: "#E9F1FD", color: "#2878F0" },
+      "Customer Agent": { background: "#E2F7F6", color: "#0F8E8B" },
+      "CEO Agent": { background: "#D9E3EC", color: "#132238" },
+      "Human Expert": { background: "#F5E4C4", color: "#8F6218" }
+    };
+    return Object.assign(base, map[agent] || {});
+  }
+  renderVals() {
+    const s = this.state;
+    const db = s.db;
+    const ws = s.workspace ?? (this.props.initialWorkspace ?? "contractor");
+    const setW = (workspace) => this.setState({ workspace });
+    const setC = (cScreen) => this.setState({ cScreen });
+    const setO = (oScreen) => this.setState({ oScreen });
+    const togBase = { border: "none", borderRadius: "999px", padding: "9px 16px", fontSize: "12.5px", fontWeight: 700, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" };
+    const tog = (on) => Object.assign({}, togBase, on ? { background: "#2878F0", color: "#fff" } : { background: "transparent", color: "#C7D4E0" });
+    const tabBase = { border: "1px solid #D9E3EC", borderRadius: "999px", padding: "7px 14px", fontSize: "12px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer" };
+    const tab = (on) => Object.assign({}, tabBase, on ? { background: "#132238", color: "#fff", border: "1px solid #132238" } : { background: "#fff", color: "#66788A" });
+    const otabBase = { border: "none", borderRadius: "8px", padding: "8px 14px", fontSize: "13px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap" };
+    const otab = (on) => Object.assign({}, otabBase, on ? { background: "#E9F1FD", color: "#2878F0" } : { background: "transparent", color: "#66788A" });
+    const showEmpty = this.props.showEmptyInbox ?? false;
+    const navTab = (on) => ({ flex: 1, background: "none", border: "none", padding: "10px 0 12px", fontFamily: "inherit", fontSize: "11.5px", fontWeight: 700, color: on ? "#2878F0" : "#7D8A97", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", minHeight: "48px" });
+    const hero = db ? db.hero : { badge: "", title: "", subtitle: "", action: "" };
+    const contact = db ? db.hero.contact : { name: "", role: "", company: "" };
+    const vals = {
+      isContractor: ws === "contractor", isOps: ws === "ops",
+      goContractor: () => setW("contractor"), goOps: () => setW("ops"),
+      toggleContractorStyle: tog(ws === "contractor"), toggleOpsStyle: tog(ws === "ops"),
+      isS1: s.cScreen === "s1", isS2: s.cScreen === "s2", isS3: s.cScreen === "s3", isS4: s.cScreen === "s4",
+      goS1: () => setC("s1"), goS2: () => setC("s2"), goS3: () => setC("s3"), goS4: () => setC("s4"),
+      tabS1: tab(s.cScreen === "s1"), tabS2: tab(s.cScreen === "s2"), tabS3: tab(s.cScreen === "s3"), tabS4: tab(s.cScreen === "s4"),
+      isFeed: s.oScreen === "feed", isCeo: s.oScreen === "ceo",
+      goFeed: () => setO("feed"), goCeo: () => setO("ceo"),
+      tabFeed: otab(s.oScreen === "feed"), tabCeo: otab(s.oScreen === "ceo"),
+      subscribe: () => setC("s3"),
+      paused: s.paused, notPaused: !s.paused, confirmOpen: s.confirmOpen,
+      askPause: () => this.setState({ confirmOpen: true }),
+      cancelPause: () => this.setState({ confirmOpen: false }),
+      confirmPause: () => this.setState({ paused: true, confirmOpen: false }),
+      resume: () => this.setState({ paused: false }),
+      feedback: s.feedback, hasFeedback: !!s.feedback, noFeedback: !s.feedback,
+      fbGood: () => this.setState({ feedback: "Good lead" }),
+      fbSmall: () => this.setState({ feedback: "Too small" }),
+      fbScope: () => this.setState({ feedback: "Wrong scope" }),
+      liveDotStyle: { width: "8px", height: "8px", borderRadius: "999px", background: s.paused ? "#7D8A97" : "#0F8E8B", display: "inline-block", animation: s.paused ? "none" : "lvpulse 1.6s ease-in-out infinite" },
+      learnedPrefs: [
+        { text: "Labs \u2191", kind: "up" }, { text: "Healthcare \u2191", kind: "up" }, { text: "Industrial \u2191", kind: "up" },
+        { text: "Office TI \u2193", kind: "down" }, { text: "Restaurants excluded", kind: "off" }
+      ].map(p => ({ ...p, style: Object.assign({ fontSize: "12px", fontWeight: 600, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" },
+        p.kind === "up" ? { background: "#E9F6EF", color: "#1D7A56", border: "1px solid #BEE3CF" } :
+        p.kind === "down" ? { background: "#EDF3F9", color: "#66788A", border: "1px solid #D9E3EC" } :
+        { background: "transparent", color: "#7D8A97", border: "1px solid #C7D4E0" }) })),
+      hero, contact,
+      contactInitials: contact.name ? contact.name.split(" ").map(w => w[0]).join("") : "",
+      heroRows: db ? db.hero.rows : [],
+      heroChips: db ? db.hero.chips.map(label => ({ label, style: this.chipStyle(label) })) : [],
+      evidence: db ? db.hero.evidence.map((e, i) => ({ ...e, chipStyle: this.chipStyle(e.chip), rowStyle: { display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderTop: i === 0 ? "none" : "1px solid #EDF3F9" } })) : [],
+      drivers: db ? db.hero.drivers.map(d => ({ ...d, scoreText: d.got + " / " + d.max, barStyle: { height: "100%", width: Math.round(d.got / d.max * 100) + "%", background: "#24966A", borderRadius: "999px", transformOrigin: "left", animation: "lvgrow .9s cubic-bezier(.2,.8,.2,1)" } })) : [],
+      gaugeOuter: { width: "56px", height: "56px", borderRadius: "999px", background: "conic-gradient(#24966A " + (db ? db.hero.score * 3.6 : 0) + "deg, #EDF3F9 0deg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+      heroScore: db ? db.hero.score : "",
+      navInbox: navTab(s.cScreen === "s3"), navProfile: navTab(s.cScreen === "s4"),
+      companyName: db ? db.subscriber.company : "",
+      profile: db ? db.subscriber.profile : [],
+      inboxHasItems: !showEmpty, inboxEmpty: showEmpty,
+      inbox: db ? db.inbox.map(o => {
+        const isViewed = o.viewed || !!s.viewed[o.id];
+        return { ...o,
+          open: () => { if (o.id === "opp-96") this.setState({ cScreen: "s2", viewed: { ...s.viewed, [o.id]: true } }); },
+          cardStyle: { textAlign: "left", width: "100%", boxSizing: "border-box", background: "#fff", border: isViewed ? "1px solid #D9E3EC" : "1px solid #C4DBFA", borderRadius: "14px", padding: "14px", display: "flex", flexDirection: "column", gap: "6px", cursor: "pointer", fontFamily: "inherit", boxShadow: isViewed ? "none" : "0 4px 14px rgba(40,120,240,.1)" },
+          badgeStyle: Object.assign({ fontSize: "11.5px", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", whiteSpace: "nowrap" }, o.score >= 90 ? { background: "#E9F6EF", color: "#24966A", border: "1px solid #BEE3CF" } : { background: "#E9F1FD", color: "#2878F0", border: "1px solid #C4DBFA" }),
+          titleStyle: { fontSize: "14.5px", fontWeight: isViewed ? 600 : 700, color: "#132238", lineHeight: 1.35 },
+          viewedText: isViewed ? "Viewed" : "New"
+        };
+      }) : [],
+      feed: db ? db.feed.slice(db.feed.length - Math.min(s.feedCount, db.feed.length)).map((e, i) => {
+        const expert = e.kind === "expert";
+        const isNewest = i === 0 && s.feedCount < db.feed.length + 1;
+        return { ...e,
+          chipStyle: this.agentStyle(e.agent),
+          rowStyle: { display: "flex", gap: "12px", alignItems: "flex-start", background: expert ? "#FBF4E3" : "#ffffff", border: expert ? "1px solid #E8D3A4" : "1px solid #D9E3EC", borderLeft: expert ? "3px solid #D4942A" : (e.kind === "delivered" ? "3px solid #24966A" : "1px solid #D9E3EC"), borderRadius: "12px", padding: "13px 16px", opacity: s.paused ? .55 : 1, animation: isNewest && !s.paused ? (s.feedCount % 2 ? "lvinA" : "lvinB") + " .5s ease" : "none" },
+          decisionStyle: { fontSize: "13.5px", fontWeight: 600, color: expert ? "#8F6218" : "#132238", lineHeight: 1.45 }
+        };
+      }) : [],
+      stats: db ? db.ceo.stats.map(st => {
+        const mrrHistory = [2533, 3129, 3874, 4470, 5215, 6407];
+        const isMrr = st.label === "MRR";
+        const isRatio = st.label === "Delivered vs archived";
+        return { ...st,
+          valueStyle: { fontSize: "26px", fontWeight: 800, letterSpacing: "-0.02em", marginTop: "8px", color: st.money ? "#24966A" : "#132238" },
+          hasSpark: isMrr,
+          spark: isMrr ? mrrHistory.map((v, i) => ({ style: { width: "9px", height: Math.round(v / 6407 * 34) + "px", background: i === mrrHistory.length - 1 ? "#24966A" : "#BEE3CF", borderRadius: "3px 3px 0 0" } })) : [],
+          hasRatio: isRatio,
+          ratioStyle: { height: "100%", width: "9%", background: "#24966A", borderRadius: "999px" }
+        };
+      }) : [],
+      economics: db ? db.ceo.economics.map((ec, i) => ({ ...ec,
+        display: (ec.plus ? "" : "\u2212") + ec.value.replace("$", "$"),
+        cellStyle: { flex: 1, minWidth: "96px", padding: ec.total ? "10px 14px" : "4px 14px", borderLeft: i === 0 || ec.total ? "none" : "1px solid #EDF3F9", background: ec.total ? "#E9F6EF" : "transparent", borderRadius: ec.total ? "12px" : "0" },
+        valStyle: { fontSize: ec.total ? "20px" : "16px", fontWeight: ec.total ? 800 : 700, marginTop: "3px", color: ec.total ? "#24966A" : (ec.plus ? "#132238" : "#66788A") }
+      })) : [],
+      segments: db ? db.ceo.segments.map((sg, i) => ({ ...sg,
+        rowStyle: { display: "grid", gridTemplateColumns: "1.6fr .7fr .8fr .8fr", gap: "8px", padding: "14px 18px", fontSize: "13.5px", alignItems: "center", borderTop: i === 0 ? "none" : "1px solid #EDF3F9", background: sg.primary ? "#F7FAFE" : "#ffffff" },
+        accStyle: { fontWeight: 700, color: sg.primary ? "#24966A" : "#66788A" }
+      })) : [],
+      decision: db ? db.ceo.decision : { title: "", by: "", when: "" }
+    };
+    const device = s.device ?? (this.props.initialDevice ?? "mobile");
+    const dScreen = s.dScreen, selId = s.selId;
+    const devTab = (on) => ({ border: "none", borderRadius: "999px", padding: "7px 16px", fontSize: "12px", fontWeight: 700, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", background: on ? "#ffffff" : "transparent", color: on ? "#2878F0" : "#66788A", boxShadow: on ? "0 1px 4px rgba(19,34,56,.15)" : "none" });
+    const dnav = (on) => ({ border: "none", borderRadius: "8px", padding: "8px 14px", fontSize: "13px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", background: on ? "#E9F1FD" : "transparent", color: on ? "#2878F0" : "#66788A" });
+    Object.assign(vals, {
+      isMobileDev: device === "mobile", isDesktopDev: device === "desktop",
+      devMobile: () => this.setState({ device: "mobile" }), devDesktop: () => this.setState({ device: "desktop" }),
+      devTabM: devTab(device === "mobile"), devTabD: devTab(device === "desktop"),
+      dSample: dScreen === "sample", dLeads: dScreen === "leads", dProfile: dScreen === "profile", dMap: dScreen === "map",
+      goDSample: () => this.setState({ dScreen: "sample" }), goDLeads: () => this.setState({ dScreen: "leads" }), goDProfile: () => this.setState({ dScreen: "profile" }), goDMap: () => this.setState({ dScreen: "map" }),
+      dTabSample: dnav(dScreen === "sample"), dTabLeads: dnav(dScreen === "leads"), dTabProfile: dnav(dScreen === "profile"), dTabMap: dnav(dScreen === "map"),
+      dSubscribe: () => this.setState({ dScreen: "leads" })
+    });
+    if (db) {
+      const item = db.inbox.find(o => o.id === selId) || db.inbox[0];
+      const isHero = selId === "opp-96";
+      const det = isHero ? db.hero : (db.details[selId] || db.hero);
+      const score = isHero ? db.hero.score : item.score;
+      const accent = score >= 90 ? "#24966A" : "#2878F0";
+      const fb = s.fbBy[selId];
+      Object.assign(vals, {
+        dInbox: db.inbox.map(o => {
+          const sel = o.id === selId;
+          const isViewed = o.viewed || !!s.viewed[o.id];
+          return { ...o,
+            select: () => this.setState({ selId: o.id, viewed: { ...s.viewed, [o.id]: true } }),
+            cardStyle: { textAlign: "left", width: "100%", boxSizing: "border-box", background: "#ffffff", border: sel ? "2px solid #2878F0" : "1px solid #D9E3EC", borderRadius: "14px", padding: sel ? "13px" : "14px", display: "flex", flexDirection: "column", gap: "6px", cursor: "pointer", fontFamily: "inherit" },
+            badgeStyle: Object.assign({ fontSize: "11.5px", fontWeight: 700, padding: "3px 10px", borderRadius: "999px", whiteSpace: "nowrap" }, o.score >= 90 ? { background: "#E9F6EF", color: "#24966A", border: "1px solid #BEE3CF" } : { background: "#E9F1FD", color: "#2878F0", border: "1px solid #C4DBFA" }),
+            titleStyle: { fontSize: "14px", fontWeight: isViewed ? 600 : 700, color: "#132238", lineHeight: 1.35 },
+            viewedText: isViewed ? "Viewed" : "New"
+          };
+        }),
+        dBadge: isHero ? db.hero.badge : item.badge,
+        dBadgeStyle: { background: score >= 90 ? "#E9F6EF" : "#E9F1FD", color: accent, border: "1px solid " + (score >= 90 ? "#BEE3CF" : "#C4DBFA"), fontSize: "12px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" },
+        dWhen: item.when,
+        dTitle: isHero ? db.hero.title : item.title,
+        dSubtitle: isHero ? db.hero.subtitle : item.subtitle,
+        dGauge: { width: "58px", height: "58px", borderRadius: "999px", background: "conic-gradient(" + accent + " " + (score * 3.6) + "deg, #EDF3F9 0deg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+        dGaugeInner: { width: "46px", height: "46px", borderRadius: "999px", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: 800, color: accent },
+        dScore: score,
+        dRows: det.rows,
+        dDrivers: det.drivers.map(d => ({ ...d, scoreText: d.got + " / " + d.max, barStyle: { height: "100%", width: Math.round(d.got / d.max * 100) + "%", background: accent, borderRadius: "999px" } })),
+        dEvidence: det.evidence.map((e, i) => ({ ...e, chipStyle: this.chipStyle(e.chip), rowStyle: { display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px 14px", borderTop: i === 0 ? "none" : "1px solid #EDF3F9" } })),
+        dContact: det.contact,
+        dInitials: det.contact.name.split(" ").map(w => w[0]).join(""),
+        dAction: det.action,
+        dNoFb: !fb, dHasFb: !!fb, dFb: fb,
+        dFbGood: () => this.setState({ fbBy: { ...s.fbBy, [selId]: "Good lead" } }),
+        dFbSmall: () => this.setState({ fbBy: { ...s.fbBy, [selId]: "Too small" } }),
+        dFbScope: () => this.setState({ fbBy: { ...s.fbBy, [selId]: "Wrong scope" } })
+      });
+    }
+    return vals;
+  }
+}
+</script>
+</body>
+</html>

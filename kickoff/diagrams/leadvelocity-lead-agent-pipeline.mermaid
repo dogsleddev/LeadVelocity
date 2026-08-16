@@ -1,0 +1,36 @@
+flowchart TD
+    A["1. Load subscriber profile + territory"] --> B["2. Pull new or changed SF permit records, tracked via data_as_of and data_loaded_at"]
+    B --> C["3. Deterministic filters: geography, status, project type, cost floor, dedupe"]
+    C --> D["4. AI shortlist: interpret permit descriptions for demand in the subscriber's trade"]
+    D --> E["5. Targeted enrichment, shortlist only: permit contacts join, CSLB license verify, Places confirm"]
+    E --> F["6. Findings written with evidence labels: verified, corroborated, inferred, unknown"]
+    F --> G["7. Deterministic score: fit 30, demand 25, timing 20, value 15, evidence 10"]
+    G --> H{"Blocking unknown with high potential value?"}
+    H -->|"yes"| I["Terac expert task via MCP: 5 minute human answer"]
+    I --> J["Evidence label upgraded, rescore"]
+    J --> K{"8. Score >= 80?"}
+    H -->|"no"| K
+    K -->|"yes"| L["Deliver: SMS to subscriber + web detail with evidence, timing, best path in"]
+    K -->|"no"| M["Archive: zero leads on a weak day beats noise"]
+    L --> N["Feedback reply: good, too small, wrong scope"]
+    N --> O["Customer Agent updates the effective profile"]
+    O -.->|"next run starts sharper"| A
+
+    subgraph LEGEND["Legend: who does what"]
+        direction LR
+        L1["Deterministic code"]
+        L2["AI judgment"]
+        L3["Human expert on demand"]
+    end
+
+    classDef det fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
+    classDef ai fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#581c87
+    classDef human fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#7c2d12
+    classDef gate fill:#fefce8,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef outcome fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    class A,B,C,F,G,J,M,O,L1 det
+    class D,E,N,L2 ai
+    class I,L3 human
+    class H,K gate
+    class L outcome

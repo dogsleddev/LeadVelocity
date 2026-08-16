@@ -1,0 +1,167 @@
+# Render deployment.
+#
+# Origin: shape adapted from SiteVelocity's render.yaml (one web service, one
+# ingestion cron, health probes, preDeploy migration, secrets presence-only).
+#
+# Every secret is `sync: false`: Render prompts for the value, nothing lands in
+# git. See .env.example for the full key list.
+#
+# Delivery: Linq is the channel, Twilio is the configured fallback. The web
+# service must be publicly reachable because Linq delivers inbound messages to
+# https://<your-render-url>/api/linq/inbound, and inbound is what releases
+# messages the Sales Agent had to queue.
+
+services:
+  - type: web
+    name: leadvelocity-web
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npm run db:migrate
+    startCommand: npm run start
+    healthCheckPath: /api/health/live
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_PAYMENT_LINK_URL
+        sync: false
+      # Delivery channel. `linq` (default) or `twilio`; both are implemented
+      # behind lib/delivery/channel.ts, so a channel swap is this value only.
+      - key: DELIVERY_CHANNEL
+        value: linq
+      # Linq: the primary channel (iMessage, RCS or SMS).
+      # The inbound webhook needs this public web service. Point the Linq
+      # webhook subscription at https://<your-render-url>/api/linq/inbound,
+      # subscribed to message.received, and put its signing_secret in
+      # LINQ_WEBHOOK_SECRET. Inbound is what releases queued messages, because
+      # the sandbox only allows messaging handles that texted us first.
+      - key: LINQ_API_V3_API_KEY
+        sync: false
+      - key: LINQ_WEBHOOK_SECRET
+        sync: false
+      - key: LINQ_API_V3_BASE_URL
+        sync: false
+      - key: LINQ_FROM_NUMBER
+        sync: false
+      - key: LINQ_ALLOW_COLD_OUTBOUND
+        value: "false"
+      # Twilio: the fallback channel, kept configured so DELIVERY_CHANNEL=twilio
+      # is a working flip and not a discovery that nothing is set.
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+      - key: TERAC_API_KEY
+        sync: false
+      - key: TERAC_BASE_URL
+        sync: false
+      - key: SODA_APP_TOKEN
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: DEMO_PHONE_NUMBER
+        sync: false
+      - key: REPLAY_SPEED_MULTIPLIER
+        value: "60"
+      - key: KILL_SWITCH_DEFAULT
+        value: "off"
+      # The published price. Not a secret, and it must be identical on the web
+      # service and the worker: the web service renders it to the buyer, the
+      # worker quotes it in the message that reaches them.
+      - key: SUBSCRIPTION_PRICE_USD
+        value: "149"
+
+  # The company runs unattended. Worker ticks are a background service, not a
+  # cron, so the decision log keeps growing between deploys (kickoff revision 8).
+  - type: worker
+    name: leadvelocity-workers
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm run workers
+    autoDeploy: true
+    envVars:
+      - fromGroup: leadvelocity-shared
+
+  - type: cron
+    name: leadvelocity-ingest
+    runtime: node
+    plan: starter
+    schedule: "*/15 * * * *"
+    buildCommand: npm ci
+    startCommand: npm run ingest
+    envVars:
+      - fromGroup: leadvelocity-shared
+
+envVarGroups:
+  - name: leadvelocity-shared
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+      # Delivery channel, same contract as the web service. The worker services
+      # send; only the web service receives the inbound webhook at
+      # /api/linq/inbound, but the workers still need the key to send and the
+      # selector to agree with the web service.
+      - key: DELIVERY_CHANNEL
+        value: linq
+      - key: LINQ_API_V3_API_KEY
+        sync: false
+      - key: LINQ_WEBHOOK_SECRET
+        sync: false
+      - key: LINQ_API_V3_BASE_URL
+        sync: false
+      - key: LINQ_FROM_NUMBER
+        sync: false
+      - key: LINQ_ALLOW_COLD_OUTBOUND
+        value: "false"
+      # Twilio fallback, kept populated so the flip works.
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PAYMENT_LINK_URL
+        sync: false
+      - key: TERAC_API_KEY
+        sync: false
+      - key: TERAC_BASE_URL
+        sync: false
+      - key: SODA_APP_TOKEN
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: DEMO_PHONE_NUMBER
+        sync: false
+      - key: REPLAY_SPEED_MULTIPLIER
+        value: "60"
+      # Must match the web service exactly. See the note there.
+      - key: SUBSCRIPTION_PRICE_USD
+        value: "149"

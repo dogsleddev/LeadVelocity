@@ -1,0 +1,1299 @@
+/*
+ * LeadVelocity UI styling.
+ *
+ * WHAT THIS IS
+ * ------------
+ * The entire visual system for the judge-facing screens. Plain CSS, no framework:
+ * Tailwind is not installed and adding it would be a dependency change nobody
+ * asked for. Everything is expressed as design tokens on `:root` plus a small set
+ * of semantic classes, so a screen is read by its markup, not by a string of
+ * utility names.
+ *
+ * WHY IT LOOKS LIKE THIS
+ * ----------------------
+ * This is watched on a projector from ten feet away, in a bright room, by people
+ * who have thirty seconds to decide whether they believe the numbers. That makes
+ * three things non-negotiable:
+ *
+ * 1. SIZE. Base type is 18px and the numbers that carry the argument (score,
+ *    counters, MRR) are set at 40-72px. Nothing important is set below 14px.
+ * 2. CONTRAST. Light ground, dark ink, and every semantic color chosen to stay
+ *    legible against white rather than only against its own tint.
+ * 3. QUIET. One accent, a fixed agent palette, a fixed evidence palette, and no
+ *    decoration that does not carry meaning. Color on this screen is data.
+ *
+ * The four agent colors and the four evidence colors are the only places hue
+ * carries meaning, and each is defined exactly once below so a badge can never
+ * disagree with a legend.
+ *
+ * LIGHT, AND WHY IT CHANGED
+ * -------------------------
+ * This console was dark until the demo needed both halves of the product on one
+ * screen. The prototype had already settled this question twice: v3 tried a dark
+ * console and v4 reverted it, and the contractor surface in
+ * `app/app/contractor.css` has been light the whole time. Running one surface
+ * dark and the other light made the switch between them read as a change of
+ * product rather than a change of view.
+ *
+ * So the ground, the ink and the hairlines below are the contractor stylesheet's
+ * numbers: page #F4F8FC, card #FFFFFF, ink #132238. The two files still declare
+ * their own tokens under their own prefixes and neither reads the other, but
+ * where they agree the value is copied rather than reinvented.
+ *
+ * WHERE THIS DIVERGES FROM THE CONTRACTOR PALETTE, AND WHY
+ * -------------------------------------------------------
+ * The secondary inks and every meaning colour are one step DARKER here than the
+ * same role in `contractor.css`. That is deliberate and it is measured, not
+ * taste: this console renders 13 and 14px bold labels in those colours (stat
+ * labels, feed actors, evidence badges, reference chips), and the contractor
+ * palette's lighter values land between 3.1 and 4.3 against white, under the 4.5
+ * that small text needs. Every colour below now clears 4.5 against both #FFFFFF
+ * and #F4F8FC, and against its own `-soft` wash where it is worn as a pill.
+ *
+ * The contractor surface is not wrong to use the lighter set: it is a phone held
+ * at arm's length, not a projector at ten feet, and its type is larger relative
+ * to its colour use. Two surfaces, two viewing distances, one hue family.
+ *
+ * EVERY MEANING COLOR CARRIES ITS OWN TINT AND LINE
+ * -------------------------------------------------
+ * The pill, badge and notice patterns are all "semantic color as text, a wash of
+ * the same hue behind it, a line of the same hue around it". Those washes used to
+ * be `rgba()` literals written out at each of twenty call sites, which was
+ * survivable only because the palette never moved. It moved. They are tokens now,
+ * `--x-soft` for the wash and `--x-line` for the border, so a hue is still
+ * defined exactly once and a badge still cannot disagree with its legend.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Reset                                                                      */
+/* -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ol,
+ul,
+li,
+figure,
+blockquote,
+dl,
+dd,
+table {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Tokens                                                                     */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Ground and surfaces. Shared with app/app/contractor.css by copied value. */
+  --bg: #f4f8fc;
+  --panel: #ffffff;
+  --panel-2: #f7fafe;
+  --line: #d9e3ec;
+  --line-soft: #edf3f9;
+
+  /*
+   * Text. Ink is the contractor stylesheet's #132238; muted and faint are one
+   * step darker than its #66788A and #7D8A97. See "WHERE THIS DIVERGES" above.
+   */
+  --text: #132238;
+  --muted: #55677a;
+  --faint: #5d6e82;
+
+  /*
+   * Meaning, and the wash and line each one wears when it is worn as a pill.
+   *
+   * Every one of these four is the contractor palette's hue taken a step down in
+   * lightness, for the same reason as muted and faint: they are worn as 13 and
+   * 14px bold text on this surface, and the lighter originals landed between 3.5
+   * and 4.3 against white.
+   */
+  --accent: #2069dd;
+  --accent-soft: #e9f1fd;
+  --accent-line: #c4dbfa;
+
+  --positive: #1c7a56;
+  --positive-soft: #e9f6ef;
+  --positive-line: #bee3cf;
+
+  --negative: #c2334d;
+  --negative-soft: #fdecef;
+  --negative-line: #f5c6ce;
+
+  --caution: #8a5e14;
+  --caution-soft: #fbf4e3;
+  --caution-line: #e8d3a4;
+
+  /*
+   * The four agents. Fixed, defined once, used by feed rows and legends.
+   *
+   * Four hues that stay apart from each other AND stay readable as small bold
+   * text on white, which the previous set (pastels tuned for a black ground) did
+   * not. Sales keeps its purple, Lead its blue, Customer its green, CEO its
+   * amber, so a reader who learned the log's colours does not have to relearn
+   * them; each is darkened until it carries against the panel.
+   */
+  --agent-ceo: #8a5e14;
+  --agent-sales: #7b4bd6;
+  --agent-lead: #2069dd;
+  --agent-customer: #1c7a56;
+
+  /*
+   * The four evidence labels. EvidenceBadge is the only component that uses
+   * these. Same four hues as the chips on the contractor surface and on
+   * `/sample`, so one fact carries one colour wherever it is rendered, at this
+   * surface's darker step.
+   */
+  --evidence-verified: #1c7a56;
+  --evidence-verified-soft: #e9f6ef;
+  --evidence-corroborated: #2069dd;
+  --evidence-corroborated-soft: #e9f1fd;
+  --evidence-inferred: #8a5e14;
+  --evidence-inferred-soft: #fbf4e3;
+  --evidence-unknown: #55677a;
+  --evidence-unknown-soft: #eef2f6;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shell: 1200px;
+
+  /*
+   * Height of the surface switch. A fixed number rather than an intrinsic one
+   * because two other things measure against it: the console's own sticky header
+   * offsets by it so the two bars stack instead of overlapping, and the
+   * contractor shell subtracts it from 100vh so the page is exactly a viewport
+   * tall and does not grow a scrollbar it has no content for.
+   */
+  --switch-h: 46px;
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base                                                                       */
+/* -------------------------------------------------------------------------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1100px 620px at 50% -280px, #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+strong {
+  font-weight: 650;
+}
+
+code,
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shell                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/* Surface switch                                                             */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * The one control that crosses between the two interfaces. Rendered by
+ * `app/components/SurfaceSwitch.tsx` from both shells, and from neither public
+ * screen. Read that file first; it explains what the control is for.
+ *
+ * It is styled here, in the global sheet, rather than in either surface's own
+ * stylesheet, because it has to look identical on both. The root layout loads
+ * this file everywhere, and `contractor.css` neither defines nor overrides
+ * anything used below, so one definition serves both sides.
+ *
+ * It sits ABOVE the console's own sticky header rather than inside it. A
+ * presenter should not have to look in a different corner depending on which
+ * view is up: the switch is the top strip of the window on both surfaces, and it
+ * stays there while the page scrolls.
+ */
+
+.surface-switch {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  height: var(--switch-h);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.surface-switch-inner {
+  max-width: var(--shell);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.surface-switch-caption {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* The track. A segmented control, so the two views read as one choice. */
+.surface-switch-track {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+}
+
+.surface-switch-door {
+  padding: 5px 15px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.surface-switch-door:hover {
+  color: var(--text);
+}
+
+/*
+ * The view you are on. Stated by fill rather than by a checkmark or a disabled
+ * state: the current door stays a live link, because reloading the surface you
+ * are already on is a harmless thing for a presenter to click by accident.
+ */
+.surface-switch-door[data-current='true'] {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.surface-switch-door[data-current='true']:hover {
+  color: #ffffff;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Console shell                                                              */
+/* -------------------------------------------------------------------------- */
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  /* Below the switch, which is sticky at 0. The two stack, never overlap. */
+  top: var(--switch-h);
+  z-index: 20;
+}
+
+.site-header-inner {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brand-mark {
+  color: var(--accent);
+}
+
+.brand-tag {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.site-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.nav-link {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 550;
+  border: 1px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--panel-2);
+  border-color: var(--line);
+}
+
+.site-main {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 34px 28px 80px;
+}
+
+.site-footer {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 0 28px 46px;
+  color: var(--faint);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page furniture                                                             */
+/* -------------------------------------------------------------------------- */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 38px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 17px;
+  max-width: 68ch;
+  margin-top: 8px;
+}
+
+.page-head-side {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.section {
+  margin-top: 34px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 14px;
+}
+
+.section-note {
+  color: var(--muted);
+  font-size: 15px;
+  margin-top: 10px;
+  max-width: 76ch;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Cards and grids                                                            */
+/* -------------------------------------------------------------------------- */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.card-body {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-stats {
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Stats                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px 20px;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 600;
+  margin-top: 8px;
+  letter-spacing: -0.02em;
+}
+
+.stat-value--accent {
+  color: var(--accent);
+}
+
+.stat-value--positive {
+  color: var(--positive);
+}
+
+.stat-note {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Badges                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* Evidence. Defined here and only here; EvidenceBadge is the single consumer. */
+.badge--verified {
+  color: var(--evidence-verified);
+  background: var(--evidence-verified-soft);
+}
+
+.badge--corroborated {
+  color: var(--evidence-corroborated);
+  background: var(--evidence-corroborated-soft);
+}
+
+.badge--inferred {
+  color: var(--evidence-inferred);
+  background: var(--evidence-inferred-soft);
+}
+
+.badge--unknown {
+  color: var(--evidence-unknown);
+  background: var(--evidence-unknown-soft);
+  border-style: dashed;
+}
+
+/* Record status and other neutral pills. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill--delivered {
+  color: var(--positive);
+  border-color: var(--positive-line);
+  background: var(--positive-soft);
+}
+
+.pill--archived {
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.pill--pending {
+  color: var(--caution);
+  border-color: var(--caution-line);
+  background: var(--caution-soft);
+}
+
+/* Replay / provenance badge. */
+.replay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 650;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--muted);
+}
+
+.replay-badge--replayed {
+  color: var(--caution);
+  border-color: var(--caution-line);
+  background: var(--evidence-inferred-soft);
+}
+
+.replay-badge--live {
+  color: var(--positive);
+  border-color: var(--positive-line);
+  background: var(--positive-soft);
+}
+
+.replay-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Decision log feed                                                          */
+/* -------------------------------------------------------------------------- */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feed-item {
+  display: grid;
+  grid-template-columns: 104px 96px minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--agent-color, var(--line));
+  border-radius: var(--radius-sm);
+  padding: 13px 18px;
+}
+
+.feed-item--ceo {
+  --agent-color: var(--agent-ceo);
+}
+
+.feed-item--sales {
+  --agent-color: var(--agent-sales);
+}
+
+.feed-item--lead {
+  --agent-color: var(--agent-lead);
+}
+
+.feed-item--customer {
+  --agent-color: var(--agent-customer);
+}
+
+.feed-time {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.feed-actor {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--agent-color, var(--muted));
+}
+
+.feed-decision {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.feed-summary {
+  font-size: 16.5px;
+  margin-top: 2px;
+}
+
+.feed-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.ref-chip {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--faint);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  background: var(--panel-2);
+}
+
+.ref-chip a {
+  color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .feed-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}
+
+/* Legend under the feed. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Tables                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.table th {
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table-num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table-key {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--faint);
+  display: block;
+  margin-top: 3px;
+}
+
+.value-unknown {
+  color: var(--evidence-unknown);
+  font-style: italic;
+}
+
+.value-note {
+  display: block;
+  color: var(--muted);
+  font-size: 14.5px;
+  margin-top: 4px;
+  max-width: 52ch;
+}
+
+/* Definition-style record readout. */
+.record {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 2px 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.record-field {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-soft);
+  min-width: 0;
+}
+
+.record-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.record-value {
+  font-size: 18px;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+
+.record-value--big {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.provenance {
+  margin-top: 14px;
+  padding: 13px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.provenance-strong {
+  color: var(--text);
+  font-family: var(--mono);
+}
+
+.scope {
+  margin-top: 16px;
+  padding: 18px 22px;
+  border-left: 3px solid var(--accent);
+  background: var(--panel-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Score                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.score-head {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+}
+
+.score-figure {
+  font-family: var(--mono);
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.score-figure--over {
+  color: var(--positive);
+}
+
+.score-figure--under {
+  color: var(--caution);
+}
+
+.score-scale {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 52ch;
+}
+
+.score-head + .driver-list {
+  margin-top: 16px;
+}
+
+.driver-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.driver {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  background: var(--panel);
+  padding: 11px 18px;
+}
+
+.driver-delta {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 650;
+  text-align: right;
+}
+
+.driver--positive .driver-delta {
+  color: var(--positive);
+}
+
+.driver--negative .driver-delta {
+  color: var(--negative);
+}
+
+.driver--zero .driver-delta {
+  color: var(--faint);
+}
+
+.driver-reason {
+  font-size: 16px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.driver-total {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 16px;
+  background: var(--panel-2);
+  padding: 12px 18px;
+  font-weight: 650;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.notice {
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 15.5px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--muted);
+}
+
+.notice--warning {
+  border-color: var(--caution-line);
+  color: var(--caution);
+  background: var(--caution-soft);
+}
+
+.notice--fatal {
+  border-color: var(--negative-line);
+  color: var(--negative);
+  background: var(--negative-soft);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Opportunity list rows                                                      */
+/* -------------------------------------------------------------------------- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row-link {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.row-link:hover {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+
+.row-score {
+  font-family: var(--mono);
+  font-size: 27px;
+  font-weight: 650;
+  text-align: right;
+}
+
+.row-title {
+  font-size: 17.5px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.row-meta {
+  color: var(--muted);
+  font-size: 14.5px;
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Kill switch                                                                */
+/* -------------------------------------------------------------------------- */
+
+.kill {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+
+.kill--on {
+  border-color: var(--negative-line);
+  background: var(--negative-soft);
+}
+
+.kill-state {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--positive);
+}
+
+.kill--on .kill-state {
+  color: var(--negative);
+}
+
+.kill-button {
+  margin-top: 14px;
+  width: 100%;
+  padding: 13px 18px;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.kill-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.kill-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.kill-button--halt {
+  border-color: var(--negative-line);
+  color: var(--negative);
+}
+
+.kill-button--resume {
+  border-color: var(--positive-line);
+  color: var(--positive);
+}
+
+.kill-error {
+  margin-top: 10px;
+  font-size: 14.5px;
+  color: var(--negative);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Filters                                                                    */
+/* -------------------------------------------------------------------------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.filter:hover {
+  color: var(--text);
+  border-color: var(--faint);
+}
+
+.filter--active {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty and error states                                                     */
+/* -------------------------------------------------------------------------- */
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 30px 28px;
+  color: var(--muted);
+}
+
+.empty-title {
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+.empty-body {
+  font-size: 16px;
+  max-width: 72ch;
+}
+
+.empty-body + .empty-body {
+  margin-top: 10px;
+}
+
+.empty-keys {
+  font-family: var(--mono);
+  font-size: 14.5px;
+  color: var(--caution);
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+.empty--fatal {
+  border-color: var(--negative-line);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Study (before and after)                                                   */
+/* -------------------------------------------------------------------------- */
+
+.variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.variant {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+
+.variant--winner {
+  border-color: var(--positive);
+  background: var(--positive-soft);
+}
+
+.variant-id {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.variant--winner .variant-id {
+  color: var(--positive);
+}
+
+.variant-text {
+  margin-top: 9px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.adopted {
+  margin-top: 16px;
+  border: 1px solid var(--positive);
+  border-radius: var(--radius);
+  background: var(--positive-soft);
+  padding: 20px 22px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Study thanks                                                               */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * The one public page with no chrome of its own.
+ *
+ * A Terac participant lands here from outside, having answered three questions
+ * for a stranger. They are not an owner and not a subscriber, so the operations
+ * console is not theirs to see: this page sits outside the `(owner)` route group
+ * and therefore outside the shell that used to supply its margins. It carries
+ * them here instead. Short, centred, and finished in one screen, because there is
+ * nothing else for this reader to do.
+ */
+
+.study-thanks {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 18vh 28px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-wrap: pretty;
+}
+
+.study-thanks h1 {
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.study-thanks p {
+  color: var(--muted);
+}
+
+.study-thanks__meta {
+  color: var(--faint);
+  font-size: 15px;
+}
