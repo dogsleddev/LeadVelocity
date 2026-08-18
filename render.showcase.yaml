@@ -1,0 +1,99 @@
+# Render deployment: SHOWCASE MODE.
+#
+# Web service only, no worker and no ingestion cron. This deploy is a static
+# snapshot of whatever is already in Supabase; nothing new gets ingested,
+# scored, or sent. It exists to put the app somewhere people can look at it
+# without paying for the two always-on services that run the autonomous loop.
+#
+# The web app is built to degrade to exactly this cleanly and on purpose (see
+# doc comments in lib/config/deployment-env.ts and app/(owner)/page.tsx): a
+# missing capability disables one thing and says why, an unconfigured store
+# renders a named notice instead of fake numbers, and nothing on any page
+# waits on a worker tick. Verified locally with no `npm run workers` process
+# running: the Operations, Company, and contractor views all render real
+# stored data without error.
+#
+# TO RESUME FULL DEVELOPMENT: deploy render.yaml instead (unchanged, still the
+# three-service spec) via Render's Blueprint flow. This file does not need to
+# be deleted or reconciled with it first; they are independent Blueprint
+# targets, either against a fresh service or promoted from this one's data.
+#
+# Same buildCommand/preDeployCommand/healthCheckPath/envVars as the web
+# service block in render.yaml. Keep the two in sync if either changes.
+
+services:
+  - type: web
+    name: leadvelocity-web
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npm run db:migrate
+    startCommand: npm run start
+    healthCheckPath: /api/health/live
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Persistence. Required for the dashboard to show anything but the
+      # "not configured" empty state.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Stripe, Linq/Twilio, Anthropic, and Terac keys below are only touched
+      # by their respective API routes (webhooks, checkout) if something
+      # actually calls them. With no worker composing outreach or reacting to
+      # billing events, none of these are required for the dashboard itself;
+      # leave any of them blank and that one route fails in isolation rather
+      # than the app failing to boot. Kept in the blueprint so filling them in
+      # later needs no file edit.
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_PAYMENT_LINK_URL
+        sync: false
+      - key: DELIVERY_CHANNEL
+        value: linq
+      - key: LINQ_API_V3_API_KEY
+        sync: false
+      - key: LINQ_WEBHOOK_SECRET
+        sync: false
+      - key: LINQ_API_V3_BASE_URL
+        sync: false
+      - key: LINQ_FROM_NUMBER
+        sync: false
+      - key: LINQ_ALLOW_COLD_OUTBOUND
+        value: "false"
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+      - key: TERAC_API_KEY
+        sync: false
+      - key: TERAC_BASE_URL
+        sync: false
+      - key: SODA_APP_TOKEN
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: DEMO_PHONE_NUMBER
+        sync: false
+      - key: REPLAY_SPEED_MULTIPLIER
+        value: "60"
+      # Workers aren't running to check this, but the settings row (and the
+      # kill switch UI, which reads it) still expects a value.
+      - key: KILL_SWITCH_DEFAULT
+        value: "off"
+      - key: SUBSCRIPTION_PRICE_USD
+        value: "149"
